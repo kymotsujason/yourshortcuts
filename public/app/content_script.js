@@ -94,16 +94,20 @@ window.addEventListener("load", function() {
                         return name;
                     }
                 });
-                const data = unsorted
-                    .sort((a, b) => a.score - b.score)
-                    .reverse();
-                if (data.length > 0) {
+                let found = true;
+                if (unsorted.length > 0) {
+                    const data = unsorted
+                        .sort((a, b) => a.score - b.score)
+                        .reverse();
                     top5 = data.slice(0, 4);
                     pasteContent = data[0].text;
                 } else {
+                    found = false;
+                    top5 = "No shortcuts found";
                     pasteContent = "";
                 }
-                renderBubble(xCoord, yCoord, top5);
+
+                renderBubble(xCoord, yCoord, top5, found);
                 // chrome.runtime.sendMessage(
                 //     chrome.runtime.id,
                 //     {
@@ -126,17 +130,22 @@ window.addEventListener("load", function() {
 });
 
 // Move that bubble to the appropriate location.
-function renderBubble(mouseX, mouseY, selection) {
+function renderBubble(mouseX, mouseY, selection, found) {
     let popup = "<div>";
-    Object.keys(selection).map(i => {
-        popup =
-            popup +
-            "<div><b>" +
-            selection[i].key +
-            "</b> | " +
-            selection[i].text.substr(0, 110) +
-            "</div>";
-    });
+    if (found) {
+        Object.keys(selection).map(i => {
+            popup =
+                popup +
+                "<div><b>" +
+                selection[i].key +
+                "</b> | " +
+                selection[i].text.substr(0, 110) +
+                "</div>";
+        });
+    } else {
+        popup = "<div><b>" + selection + "</b></div>";
+    }
+
     popup = popup + "</div>";
     bubbleDOM.innerHTML = popup;
     bubbleDOM.style.top = mouseY + "px";
